@@ -5,6 +5,9 @@ An Example YAML parser that outputs Data as a CSV
 """
 import csv
 import yaml
+import xml.etree.ElementTree as ET
+import json
+import zipfile
 
 
 def top_key_fns(string, _dict, path='/', path_list=[], top_subkey_list=[]):
@@ -26,26 +29,27 @@ def top_key_fns(string, _dict, path='/', path_list=[], top_subkey_list=[]):
     return [path_list, top_subkey_list]
 
 
-def main(string, inputyaml='', outputcsv='output.csv'):
+def main(string, inputdata='',parse_func=top_key_fns, outputfile='output.csv',data_type=''):
     """
 
     Parses YAML file searching for keys with the given string .
     Assumes that Key contains a dictionary and returns the subkey with the highest INT value
     Args:
     ------
-    inputyaml : Path to the YAML file containing  assignment data
+    inputdata : Path to the YAML file containing  assignment data
     outputdir : Path to the output CSV containing  subkey with the highest integer value
+    parse_func : Recursive function to ddetermine how to deal with each node.
 
     Returns:
     --------
     CSV highest integer value in that dictionary
     """
-    yaml_file = inputyaml.split('/')[-1]
+    yaml_file = inputdata.split('/')[-1]
     output_headers = ['inputstring_path', 'top_subkey']
-    with open(inputyaml, 'r') as stream:
+    with open(inputdata, 'r') as stream:
         load_asignment = yaml.load(stream, Loader=yaml.FullLoader)
-    node = top_key_fns(string, load_asignment, path=yaml_file+'/')
-    with open(outputcsv, 'w') as file_output:
+    node = parse_func(string, load_asignment, path=yaml_file+'/')
+    with open(outputfile, 'w') as file_output:
         file = csv.writer(file_output)
         file.writerow(output_headers)
         for inputstring_path, top_subkey in zip(node[0], node[1]):
@@ -55,11 +59,11 @@ def main(string, inputyaml='', outputcsv='output.csv'):
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser()
-    parser.add_argument('--s', '-string', help='Input String')
-    parser.add_argument('--i', '-inputyaml',
+    parser.add_argument('-s', '--string', help='Input String')
+    parser.add_argument('-i', '--inputdata',
                         help='Input YAML File')
-    parser.add_argument('--o', '-outputdir',
+    parser.add_argument('-o', '--outputdir',
                         default='output.csv', help='Output CSV')
     args = parser.parse_args()
 
-    main(args.s, inputyaml=args.i, outputcsv=args.o)
+    main(args.string, inputdata=args.inputdata,parse_func=top_key_fns, outputfile=args.outputdir)

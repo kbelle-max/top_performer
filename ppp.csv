@@ -1,0 +1,5 @@
+inputstring_path,top_subkey
+test.yml/lecture1/assignment1,bob
+test.yml/lecture2/before_lunch_break/assignment2,alice
+test.yml/lecture2/after_lunch_break/assignment3,charlie
+test.yml/assignment4,david
